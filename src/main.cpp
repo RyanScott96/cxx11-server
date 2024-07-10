@@ -30,6 +30,12 @@ public:
     }
     return uri.substr(1);
   };
+  void registerRoute(std::string uri, std::string resource) override {
+    return;
+  };
+  void deregisterRoute(std::string uri) override {
+    return;
+  };
 };
 
 Router* router;
@@ -38,7 +44,6 @@ int main(int argc, char **argv) {
   const std::uint16_t port = 8080;
   const std::string address = "127.0.0.1";
   router = new DumbRouter{};
-
   {
     ThreadPool executor(std::thread::hardware_concurrency() - 1);
     for (size_t i = 0; i < std::thread::hardware_concurrency() - 1; ++i) {
