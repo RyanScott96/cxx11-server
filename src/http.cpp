@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include <memory>
+#include <unordered_map>
 
 std::string http::method_as_string(http::Method method) {
   switch (method) {
@@ -28,6 +29,7 @@ std::string http::method_as_string(http::Method method) {
   case Method::PATCH:
     return "PATCH";
   };
+  return "ERROR";
 };
 
 http::Method http::string_to_method(std::string method) {
@@ -50,6 +52,7 @@ std::string http::version_as_string(Version version) {
   case Version::HTTP3:
     return "HTTP/3";
   }
+  return "ERROR";
 };
 
 http::Version http::string_into_version(std::string version) {

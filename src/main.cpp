@@ -1,10 +1,9 @@
 #include <cstring>
 #include <fstream>
-#include <iostream> // cout + endl
+#include <iostream>
 #include <memory>
 #include <string>
-#include <sys/_types/_socklen_t.h>
-#include <thread> // sleep
+#include <thread>
 
 #include <arpa/inet.h>
 
