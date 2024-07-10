@@ -16,4 +16,5 @@ CMakeUserPresets.json
 .cache
 
 # binaries
+build/
 main
