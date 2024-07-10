@@ -16,20 +16,41 @@
 #include <unistd.h>
 
 #include "http.h"
+#include "router.h"
 #include "threadpool.h"
 
 void listenForHTTP(std::uint16_t, std::string);
 void handleHTTPConnection(int);
 void concurrentPrint(std::string);
+class DumbRouter: public Router {
+public:
+  std::string getResource(std::string uri) override {
+    if (uri == "/") {
+      return "index.html";
+    }
+    return uri.substr(1);
+  };
+  void registerRoute(std::string uri, std::string resource) override {
+    return;
+  };
+  void deregisterRoute(std::string uri) override {
+    return;
+  };
+};
+
+Router* router;
 
 int main(int argc, char **argv) {
   const std::uint16_t port = 8080;
   const std::string address = "127.0.0.1";
-
-  ThreadPool executor(std::thread::hardware_concurrency() - 1);
-  for (size_t i = 0; i < std::thread::hardware_concurrency() - 1; ++i) {
-    executor.enqueue([=]() { listenForHTTP(port, address); });
+  router = new DumbRouter{};
+  {
+    ThreadPool executor(std::thread::hardware_concurrency() - 1);
+    for (size_t i = 0; i < std::thread::hardware_concurrency() - 1; ++i) {
+      executor.enqueue([=]() { listenForHTTP(port, address); });
+    }
   }
+  delete router;
 }
 
 void listenForHTTP(const std::uint16_t port, const std::string address) {
@@ -79,11 +100,9 @@ void handleHTTPConnection(int connection) {
 
   std::string res_body = "";
   std::string target = request.getTarget();
-  if (request.getTarget() == "/") {
-    target = "/index.html";
-  }
+  
   if (!target.empty()) {
-    std::ifstream file_handle(target.substr(1));
+    std::ifstream file_handle(router->getResource(target));
     while(!file_handle.eof()) {
       std::string buf;
       std::getline(file_handle, buf);
