@@ -21,8 +21,6 @@ MIME::MIME() {
 
 std::string MIME::getMIMEType(std::string resource) {
   std::string ext = resource.substr(resource.find_last_of("."));
-  std::cout << "EXTENSION: " + ext << std::endl;
   MIMEType type = this->extMIME.at(ext);
-  std::cout << "MIME: " + type.toString() << std::endl;
   return type.toString(); 
 }
