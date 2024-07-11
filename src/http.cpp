@@ -99,7 +99,7 @@ std::string http::Request::getHeader(std::string key) {
 };
 
 void http::Request::setHeader(std::string key, std::string value) {
-  this->headers.insert(std::make_pair(key, value));
+  this->headers[key] = value;
 };
 
 size_t http::Request::serialize(std::unique_ptr<unsigned char[]>& out) {
@@ -108,7 +108,7 @@ size_t http::Request::serialize(std::unique_ptr<unsigned char[]>& out) {
                              + http::version_as_string(this->getVersion()) + "\r\n";
   std::string headers = "";
   for (auto header : this->getHeaders()) {
-    headers += (header.first + ": " + header.second + "\r\n");
+    headers += (header.first + ":" + header.second + "\r\n");
   }
 
   std::string text = request_line + headers + "\r\n";
@@ -205,7 +205,7 @@ std::string http::Response::getHeader(std::string key) {
 };
 
 void http::Response::setHeader(std::string key, std::string value) {
-  this->headers.insert(std::make_pair(key, value));
+  this->headers[key] = value;
 };
 
  std::unique_ptr<unsigned char[]> http::Response::getData() {
@@ -227,7 +227,7 @@ size_t  http::Response::serialize(std::unique_ptr<unsigned char[]>& out) {
 
   head += version + " " + code + " " + statusText + "\r\n";
   for (auto header : this->headers) {
-    head += header.first + " : " + header.second + "\r\n";
+    head += header.first + ":" + header.second + "\r\n";
   }
   head += "\r\n";
 
@@ -242,7 +242,6 @@ std::map<std::string, std::string> http::Response::getDefaultReponseHeaders() {
   return {
       std::make_pair("Content-Type", "text/html; charset=UTF-8"),
       std::make_pair("Content-Encoding", "UTF-8"),
-      std::make_pair("Accept", "*/*"),
     };
 };
 
