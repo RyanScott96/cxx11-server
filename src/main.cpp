@@ -16,6 +16,7 @@
 #include <unistd.h>
 
 #include "http.h"
+#include "mime.h"
 #include "router.h"
 #include "threadpool.h"
 
@@ -39,11 +40,13 @@ public:
 };
 
 Router* router;
+MIME* mime;
 
 int main(int argc, char **argv) {
   const std::uint16_t port = 8080;
   const std::string address = "127.0.0.1";
   router = new DumbRouter{};
+  mime = new MIME{};
   {
     ThreadPool executor(std::thread::hardware_concurrency() - 1);
     for (size_t i = 0; i < std::thread::hardware_concurrency() - 1; ++i) {
@@ -51,6 +54,7 @@ int main(int argc, char **argv) {
     }
   }
   delete router;
+  delete mime;
 }
 
 void listenForHTTP(const std::uint16_t port, const std::string address) {
@@ -100,9 +104,10 @@ void handleHTTPConnection(int connection) {
 
   std::string res_body = "";
   std::string target = request.getTarget();
+  std::string resource = router->getResource(target);
   
   if (!target.empty()) {
-    std::ifstream file_handle(router->getResource(target));
+    std::ifstream file_handle(resource);
     while(!file_handle.eof()) {
       std::string buf;
       std::getline(file_handle, buf);
@@ -112,10 +117,8 @@ void handleHTTPConnection(int connection) {
 
   http::Response res = http::Response(200, "OK");
   res.setData(reinterpret_cast<const unsigned char *>(res_body.c_str()), res_body.size());
-  if (target == "/favicon.ico") {
-    res.setHeader("Content-Type", "image/gif");
-  }
   res.setHeader("Content-Length", std::to_string(res_body.size() - 1));
+  res.setHeader("Content-Type", mime->getMIMEType(resource));
   
   std::unique_ptr<unsigned char[]> encoded;
   size_t length = res.serialize(encoded);
